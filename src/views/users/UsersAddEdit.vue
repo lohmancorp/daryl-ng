@@ -29,8 +29,11 @@ const schema = Yup.object().shape({
         .required('Username is required'),
     password: Yup.string()
         .transform(x => x === '' ? undefined : x)
+        // password is required when adding user but not when editing
         .concat(user ? null : Yup.string().required('Password is required'))
-        .min(6, 'Password must be at least 6 characters')
+        .min(6, 'Password must be at least 6 characters'),
+    role: Yup.string()
+        .required('Role is required')
 });
 
 async function onSubmit(values) {
@@ -74,6 +77,17 @@ async function onSubmit(values) {
                     <div class="invalid-feedback">{{ errors.username }}</div>
                 </div>
                 <div class="form-group col">
+                    <label>Role</label>
+                    <Field name="role" as="select" class="form-control" :class="{ 'is-invalid': errors.role }">
+                        <option value=""></option>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </Field>
+                    <div class="invalid-feedback">{{ errors.role }}</div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col">
                     <label>
                         Password
                         <em v-if="user">(Leave blank to keep the same password)</em>
@@ -102,3 +116,4 @@ async function onSubmit(values) {
         </div>
     </template>
 </template>
+

@@ -7,10 +7,18 @@ export { fakeBackend };
 const usersKey = 'vue-3-pinia-registration-login-example-users';
 let users = JSON.parse(localStorage.getItem(usersKey)) || [];
 
-// ensure admin and user accounts exist
-if (!users.find(x => x.username === 'admin')) {
+// find admin user
+let adminUser = users.find(x => x.username === 'admin');
+
+if (!adminUser) {
+    // if no admin user, create one
     users.push({ id: 1, username: 'admin', password: 'admin', firstName: 'Admin', lastName: 'User', role: 'Admin' });
+} else {
+    // if admin user exists, ensure they have the Admin role
+    adminUser.role = 'Admin';
 }
+
+// ensure a normal user account exists
 if (!users.find(x => x.username === 'user')) {
     users.push({ id: 2, username: 'user', password: 'user', firstName: 'Normal', lastName: 'User', role: 'User' });
 }

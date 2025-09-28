@@ -1,25 +1,20 @@
-<!-- Filename: AddEditView.vue -->
-<!-- Path: /src/views/users/AddEditView.vue -->
-
 <script setup>
 import { Form, Field } from 'vee-validate';
 import * as Yup from 'yup';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
 import { useUsersStore, useAlertStore } from '@/stores';
+import { router } from '@/router';
 
 const usersStore = useUsersStore();
 const alertStore = useAlertStore();
-const router = useRouter();
 const route = useRoute();
 const id = route.params.id;
 
 let title = 'Add User';
 let user = null;
-
 if (id) {
-    // edit mode
     title = 'Edit User';
     ({ user } = storeToRefs(usersStore));
     usersStore.getById(id);
@@ -33,9 +28,11 @@ const schema = Yup.object().shape({
     username: Yup.string()
         .required('Username is required'),
     password: Yup.string()
-        .transform(x => x || undefined)
+        .transform(x => x === '' ? undefined : x)
         .concat(user ? null : Yup.string().required('Password is required'))
-        .min(6, 'Password must be at least 6 characters')
+        .min(6, 'Password must be at least 6 characters'),
+    role: Yup.string()
+        .required('Role is required')
 });
 
 async function onSubmit(values) {
@@ -78,6 +75,17 @@ async function onSubmit(values) {
                     <Field name="username" type="text" class="form-control" :class="{ 'is-invalid': errors.username }" />
                     <div class="invalid-feedback">{{ errors.username }}</div>
                 </div>
+                <div class="form-group col">
+                    <label>Role</label>
+                    <Field name="role" as="select" class="form-control" :class="{ 'is-invalid': errors.role }">
+                        <option value=""></option>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                    </Field>
+                    <div class="invalid-feedback">{{ errors.role }}</div>
+                </div>
+            </div>
+            <div class="form-row">
                 <div class="form-group col">
                     <label>
                         Password
